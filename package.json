@@ -1,5 +1,5 @@
 {
-  "name": "monnify-ts",
+  "name": "@monnify/monnify-ts",
   "version": "1.0.0",
   "description": "A typescript wrapper for the Monnify SDK",
   "main": "dist/Monnify.js",
