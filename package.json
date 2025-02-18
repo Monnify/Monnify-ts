@@ -24,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/Monnify/Monnify-ts/issues"
   },
-  "homepage": "https://github.com/Monnify/Monnify-ts"
+  "homepage": "https://github.com/Monnify/Monnify-ts",
+  "publishConfig": {
+    "access": "public"
+  }
 }
