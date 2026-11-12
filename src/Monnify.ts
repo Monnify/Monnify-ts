@@ -1,4 +1,14 @@
 /** 
+ * Supported Monnify payment methods with forward-compatible string support.
+ */
+export type PaymentMethod =
+  | "CARD"
+  | "ACCOUNT_TRANSFER"
+  | "USSD"
+  | "PHONE_NUMBER"
+  | (string & {});
+
+/** 
  * Configuration options for initializing a payment with Monnify.
  */
 interface PaymentConfig {
@@ -24,7 +34,7 @@ interface PaymentConfig {
   redirectUrl?: string;
 
   /** Optional array of payment methods to display. */
-  paymentMethods?: Array<string>;
+  paymentMethods?: Array<PaymentMethod>;
 
   /** Optional metadata for additional information. */
   metadata?: Record<string, any>;
@@ -147,14 +157,6 @@ class Monnify {
   private apiKey: string;
   private contractCode: string;
 
-  // Define the valid payment methods
-  private static readonly VALID_PAYMENT_METHODS = [
-    "CARD",
-    "ACCOUNT_TRANSFER",
-    "USSD",
-    "PHONE_NUMBER"
-  ];
-
   /** 
    * Creates an instance of the Monnify class.
    * @param apiKey - The API key provided by Monnify.
@@ -194,53 +196,11 @@ class Monnify {
   }
 
   /** 
-   * Validates the provided payment configuration.
-   * Logs errors for any missing required fields or invalid payment methods.
-   * @param config - The configuration object for payment initialization.
-   * @returns True if the configuration is valid; otherwise, false.
-   */
-  private validateConfig(config: PaymentConfig): boolean {
-    const requiredFields = ['amount', 'currency', 'reference', 'customerFullName', 'customerEmail', 'paymentDescription'];
-    let isValid = true;
-
-    requiredFields.forEach((field) => {
-      if (!config[field as keyof PaymentConfig]) {
-        console.error(`Missing required field: ${field}`);
-        isValid = false;
-      }
-    });
-
-    // Log an error if paymentMethods is defined but empty
-    if (config.paymentMethods !== undefined && Array.isArray(config.paymentMethods) && config.paymentMethods.length === 0) {
-      console.error('Error: No payment methods specified in paymentMethods array.');
-      isValid = false;
-    }
-
-    // Validate the paymentMethods array
-    if (config.paymentMethods) {
-      const invalidMethods = config.paymentMethods.filter(method => !Monnify.VALID_PAYMENT_METHODS.includes(method));
-      if (invalidMethods.length > 0) {
-        console.error(`Error: Invalid payment methods specified: ${invalidMethods.join(', ')}`);
-        isValid = false;
-      }
-    }
-
-    return isValid;
-  }
-
-  /** 
    * Asynchronously initializes the payment process with Monnify.
    * @param config - The configuration object for payment initialization.
    * @returns A promise that resolves when the payment is successfully initialized.
    */
   public async initializePayment(config: PaymentConfig): Promise<void> {
-    // Validate required fields
-    const isValid = this.validateConfig(config);
-    if (!isValid) {
-      console.error('Payment initialization aborted due to missing required fields or invalid payment methods.');
-      return;
-    }
-
     await this.loadSDK();  // Ensure SDK is loaded before initializing
 
     const paymentConfig = {
